@@ -2,6 +2,8 @@
 
 Mattermost is an open source platform for secure collaboration across the entire software development lifecycle.
 
+<hr>
+
 # Mattermost install ubuntu
 
 ## 1. Update the system
@@ -84,3 +86,46 @@ sudo nano /opt/mattermost/config/config.json
         "DataSource": "postgres://tester:What@Mattermost@localhost:5432/mattermost?sslmode=disable&connect_timeout=10",
         "DataSourceReplicas": [],
 ```
+
+## 6: Configure Systemd Service
+
+```
+sudo nano /etc/systemd/system/mattermost.service
+```
+
+Now populate the file with the following information below. By default, it is empty.
+
+```
+[Unit]
+Description=Mattermost
+After=network.target
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=notify
+ExecStart=/opt/mattermost/bin/mattermost
+TimeoutStartSec=3600
+Restart=always
+RestartSec=10
+WorkingDirectory=/opt/mattermost
+User=mattermost
+Group=mattermost
+LimitNOFILE=49152
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```
+sudo systemctl daemon-reload
+```
+
+```
+sudo systemctl start mattermost.service
+sudo systemctl enable mattermost.service
+```
+
+## Finish Mattermost Web configuration
+
+http://localhost:8065/
